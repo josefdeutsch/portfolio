@@ -1,64 +1,65 @@
-# Operations and Validation
+# Operations
 
 ## Deployment architecture
 
-The repository defines seven containerized services on an AWS EC2 Linux host, coordinated by Docker Compose. Nginx provides TLS ingress. Gmail/Pub/Sub and OpenAI remain external managed integrations; the application queues are ordinary in-process queues.
+Docker Compose defines seven application containers sharing one persistent SQLite volume. Each service has its own image, application package and private configuration. Application ports bind to host loopback, and the service process runs as a non-root user with a read-only container root filesystem.
 
-SQLite entitlement state and the Gmail processing checkpoint are persisted outside disposable containers. OAuth material is mounted at runtime rather than embedded in application images. Health checks distinguish a responding process from locally configured readiness.
+Container policy includes dropped Linux capabilities, no privilege escalation, process limits, bounded temporary storage, rotated JSON-file logs and a restart policy. These are configuration controls; they do not establish a completed penetration test or continuous availability.
 
-The configuration and operational artifacts demonstrate practical single-host cloud operations. They do not demonstrate Terraform-based provisioning, a managed orchestration platform, automated CI/CD, multi-region failover or an infrastructure capacity benchmark.
+The deployment is designed for one Linux host. Historical repository records describe operation on AWS EC2. The project does not demonstrate an autoscaling or multi-host production platform, infrastructure-as-code provisioning, a managed database, or a fully automated release pipeline.
 
-## Verification performed for this portfolio
+## Configuration and controlled startup
 
-On **14 November 2026**, the existing development environment was used to rerun isolated backend suites with external providers mocked:
+Provider execution and automatic scheduling are controlled independently. Both default to disabled. Service configuration is validated before the application starts; missing required enabled-provider settings fail rather than invent defaults.
 
-| Suite | Result |
+A controlled release procedure is to select a reviewed revision, preserve private configuration and durable state, build the affected images, inspect the effective container settings, start disabled and verify local health and authenticated status before considering external activation. Existing containers must be recreated to load environment changes; a process restart alone does not replace their saved environment.
+
+Disabled external execution does not mean the application is entirely read-only. Local discovery, cleanup and recovery logic can still operate. A maintenance assessment must distinguish a passive status request from starting a service against a database.
+
+This public guide describes operating principles. It intentionally excludes host identifiers, credentials, connection instructions and private deployment paths.
+
+## Testing and validation
+
+| Layer | Implemented verification approach |
 | --- | --- |
-| Core backend and routing | 91 passed, 3 subtests passed |
-| Base AI task, separate import context | 3 passed |
-| Structured notification task | 44 passed |
-| **Total** | **138 passed, 3 subtests passed** |
+| API and input contracts | Strict request validation, bounded CSV intake, caller authentication and error handling |
+| Storage | Identity constraints, claim exclusivity, transaction rollback, schema conversion and result-reference integrity |
+| Integrations | Mocked HTTP transports, bounded response handling, execution-ID binding and malformed-result cases |
+| AI workflow | Structured decisions, evidence attribution, policy-version reuse, receipt recovery and paid uncertainty |
+| Lifecycle | Fresh runtime instances, process-death injection, terminal failure, orphaned work and commit interruption |
+| End-to-end | Real adapters with synthetic records, mocked providers and simulated time |
+| Deployment | Separate image and Compose smoke harnesses using disposable resources |
+| Historical maintenance | Tests operate on disposable copies of privately supplied consistent snapshots |
 
-The total counts each suite once. Earlier operational records contain different counts because the tests and response-file policy changed between revisions. Website tests were intentionally excluded, and no website quality claim is based on this review.
+Offline tests deny unmocked IP-network access and clear inherited live configuration. The test image supports execution without a network. Smoke tests and historical-snapshot tests have additional resource requirements; their existence must not be reported as a fresh pass when those resources are unavailable.
 
-The canonical integration test starts five real local HTTP processes. Gmail and OpenAI are mocked, but service HTTP handoffs, local queues, schema validation, quota receipts, MIME construction and cleanup execute. Cases cover requests with and without incoming files, mandatory response attachments, duplicate notifications, and prevention of input-file echoing.
-
-Additional regression coverage checks malformed attachment metadata, distinct storage for duplicate display filenames, bounded copies, rejection before ownership acceptance, saturated same-key queue progress, and checkpoint preservation during watch renewal.
-
-## Historical deployment evidence
-
-Repository-maintained records dated **7 November 2026** describe:
-
-- Building the service images and checking installed dependency consistency.
-- Restoring the specialized notification service from a stopped state.
-- Six selected services passing readiness checks; the retained retrieval-oriented task was excluded from operational acceptance.
-- Live Gmail/OpenAI submission and reply receipt in the service-owned mailbox, including generated-file verification.
-- A public notification-driven request completing without a manually posted webhook.
-- A follow-up public-ingress check confirming that the mandatory response file matched the email body.
-- A public Delivery gateway passing certificate-verified origin tests for missing/incorrect authentication and authenticated invalid input.
-
-Those are dated records, not tests repeated against production during this portfolio task. Independent external-client validation of the direct Delivery gateway was recorded as blocked by the testing workstation's outbound network policy. Origin validation must not be presented as an independent public-client test.
-
-No current uptime, watch validity, scheduler operation or production resource state was checked. This review deliberately made no production changes or live provider calls.
+The latest reviewed complete-suite ledger entry records 616 passes and three Search-related exclusions on 1 November 2026. That suite was not rerun to produce this export. Documentation validation is recorded separately in [EVIDENCE.md](EVIDENCE.md).
 
 ## Monitoring and observability
 
-The system exposes liveness, local readiness and version metadata, and emits correlation-aware lifecycle logs. Logs distinguish local handoff ownership from provider submission and identify cleanup failures. These signals support diagnosis of authorization, capacity, routing and provider failures.
+Application logs are JSON events with timestamp, severity, logger and event name. Detailed HTTP logging is suppressed to reduce exposure of private URLs and headers. Docker log rotation bounds local log growth.
 
-Readiness does not call every provider or prove successful task execution. Version metadata depends on configuration, so operational records also use release manifests and source hashes. A centralized monitoring service, alerting system, distributed tracing backend and service-level objectives are not established by the inspected artifacts.
+Health checks inspect local application/storage availability and report whether a business adapter exists. Authenticated status reports local work counts, execution ownership, next eligible launch time and reasons for waiting. A stored provider observation can be stale; an explicitly requested refresh has different behavior and may contact a provider when enabled.
 
-## Recovery and maintenance approach
+Operationally useful distinctions include disabled execution, no eligible work, scheduling delay, quota/capacity exhaustion, active execution and external reconciliation required. A healthy HTTP endpoint is not proof that a business pipeline completed. A process exit is not proof that its result is valid.
 
-The operational work demonstrates backing up persistent records and configuration, preserving rollback images, staging builds, limiting the deployment scope, validating gateway configuration before reload, and checking preserved data after changes.
+No external metrics platform, distributed tracing, alerting service, measured service-level objective or native Docker HEALTHCHECK should be inferred from the application health API.
 
-Recorded preservation checks compare pre-existing database rows, configuration/credential contents and datasets, rather than assuming that healthy containers imply a safe migration. Synthetic validation requests use separate entitlements and retained audit receipts.
+## Recovery and maintenance
 
-Because accepted work is volatile, deployment must account for work already owned by each service. Restoring an older database over new activity or automatically retrying an ambiguous send would introduce additional risks. Rollback preparation is evidenced; a complete automated rollback or disaster-recovery drill is not claimed.
+1. **Preserve before changing.** Record the selected revision, effective configuration, image identity and consistent database state. Avoid changes that erase evidence of an uncertain paid request or possible invitation.
+2. **Inspect the existing operation.** Reconcile a known execution ID or correlated received response. A missing response does not prove a request was rejected.
+3. **Recover atomically.** Validate source and ownership before committing a result and local completion together. Keep protection for remote activity that remains unresolved.
+4. **Use consistent backups.** The storage package and runbook use SQLite's backup API, followed by database integrity and foreign-key checks. Preserve correlated response receipts alongside the database when required for recovery.
+5. **Restore conservatively.** A valid database backup can still omit externally visible actions performed after its timestamp. Reconcile later contact-protection evidence before external execution resumes.
+6. **Maintain only the affected deployment.** Preserve service configuration and volume identity, verify schema compatibility and keep execution disabled through validation. Broad database rollback is not a safe substitute for application-image rollback.
 
-OAuth refresh, Gmail watch renewal, checkpoint recovery and provider-file cleanup are distinct concerns. The repository has no built-in recurring watch-renewal scheduler. Google publishing/verification status and external scheduler operation remain outside the evidence available here.
+Retention is dependency-aware: unfinished downstream work can pin earlier results, and minimal permanent invitation protection is distinct from ordinary operational detail. Temporary database locks are deferred within bounded behavior; arbitrary provider calls are not automatically replayed as a lock-recovery strategy.
 
-## Operational constraints
+## Verified operational status and limits
 
-The historical rollout encountered memory/storage constraints and an image-build disk failure. Recovery used retained rollback artifacts, unused build-cache reclamation and temporary swap. These records demonstrate resource diagnosis and recovery, not spare capacity or proven sustained throughput. Persistence of temporary resource accommodations across reboot was not established.
+Historical records reviewed for this export include an operator-reported EC2 update on 28 October 2026 and a later operations checkpoint recording a 1 November deployment with seven successful local health/status checks and external execution disabled. These records support deployment and maintenance experience, not a current availability claim.
 
-The current deployment should therefore be described as historically exercised, with explicit remaining operating responsibilities—not as independently certified for unattended high availability.
+The later checkpoint also preserves an unresolved company-enrichment hold. Search remains a scaffold. Limited live classification and handoff tests do not establish a full production cohort, current LinkedIn authentication, invitation delivery or unattended reliability.
+
+No production connection, provider request, database modification, image build or container restart was performed during this documentation task.

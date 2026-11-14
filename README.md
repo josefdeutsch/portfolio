@@ -1,53 +1,56 @@
-# QDF — AI Email Processing Framework
+# QDF Prospect Orchestrator
 
-An engineering case study in connecting an email interface to authenticated backend services, bounded AI execution, and attachment-capable email delivery.
-
-**Review date:** 14 November 2026. This export describes the inspected repository snapshot. Current local tests were rerun; deployment observations are explicitly dated historical evidence. It makes no claim about present production uptime.
+A Python backend for persistent company enrichment, prospect research, AI classification and controlled invitation handoff. The implementation combines independent FastAPI services, a shared SQLite database and bounded external-provider integrations.
 
 ## Problem addressed
 
-An AI-backed email workflow needs more than a model call. It must identify eligible requests, route them to the correct processor, handle files across service boundaries, control concurrent work, return useful results, and distinguish accepted work from completed delivery. Provider failures and process restarts complicate each step.
+An enrichment job or paid model request can complete after the initiating process times out. Repeating it blindly can duplicate provider activity, charges or outreach. Meanwhile, the same person may appear under multiple companies or input batches. Reliable automation therefore requires durable ownership, identity resolution and evidence attribution as well as API integration.
 
-## Implemented solution
+## Solution implemented
 
-QDF separates Gmail ingress, entitlement admission, routing, task execution, and Gmail delivery into independently packaged Python services. Each receiving service validates its input and owns its local execution or handoff capacity. Files cross service boundaries as explicit metadata and bytes, rather than shared filesystem paths.
+Services discover eligible downstream work from committed relational records. A shared runtime handles polling, transactional claims, bounded execution and failure recording. External execution identifiers and separate uncertainty guards allow recovery to inspect an existing operation rather than automatically launch a replacement.
 
-The repository contains seven Docker Compose services. A normal request traverses five: ingress, admission, routing, one selected task processor, and delivery. Two task implementations have substantive validation evidence: a base OpenAI integration and a structured notification-analysis workflow. A third retrieval-oriented task remains in the repository but was excluded from the recorded operational acceptance scope.
+The repository defines seven services. Six contain business adapters; Search Export remains an explicit scaffold. The implemented pipeline starts with List Export and continues through company enrichment, employee discovery, profile enrichment, classification and invitation handoff.
 
 ## Key engineering achievements
 
-- **Service contracts and ownership:** authenticated HTTP handoffs, typed payloads, explicit acceptance semantics, and correlation-based lifecycle evidence.
-- **Authorization and quota accounting:** persistent entitlement records and transactional receipts that prevent repeat charging for an already-recorded request identifier.
-- **Bounded execution:** local queues, byte/storage checks, per-key execution exclusion, and serialized outbound email submission.
-- **Attachment delivery:** strict metadata validation, bounded file copies, explicit output selection, MIME construction, and cleanup. Successful base AI replies include a generated response-text file.
-- **Applied AI integration:** a typed, bounded agent workflow combining model interpretation with deterministic provenance checks, conservative normalization, review flags, and structured rendering.
-- **Operational hardening:** container health/readiness checks, secret-excluding build contexts, checkpoint-preserving Gmail watch renewal, HTTPS gateway configuration, backup and rollback evidence.
-- **Verification:** 138 passing local tests and 3 passing subtests at review time, plus separately documented historical live-provider and public-ingress checks.
+- Created reusable runtime and storage packages while keeping each service independently packaged and deployable.
+- Implemented transactional work ownership, stable company/person identities and reference-based reuse of upstream evidence.
+- Repaired crash recovery so abandoned local attempts become failed without discarding duplicate-prevention guards.
+- Integrated OpenAI Chat Completions with bounded website research, strict structured-output validation and correlated local response receipts.
+- Implemented persistent invitation suppression, schedule/quota checks and a clear distinction between provider acknowledgment and delivery.
+- Built offline integration and fault-injection tests using mocked HTTP, simulated time and disposable SQLite databases.
+- Packaged services with pinned dependencies, non-root execution, read-only filesystems and reduced container privileges.
+- Maintained operating documentation covering verification, database backup, restoration and uncertain external outcomes.
 
 ## Technology stack
 
-| Area | Technologies evidenced in the implementation |
+| Area | Technologies used |
 | --- | --- |
-| Backend | Python 3.12, FastAPI, Pydantic, Uvicorn, Requests |
-| AI | OpenAI Responses API, OpenAI Python SDK, OpenAI Agents SDK |
-| Messaging | Gmail API, Google Cloud Pub/Sub notifications, OAuth 2.0, MIME email |
-| Persistence and execution | SQLite, HMAC-based token hashing, Python queues, threads and asyncio |
-| Deployment | AWS EC2, Linux, Docker, Docker Compose, Nginx, TLS |
-| Verification and tooling | pytest, unittest mocks, HTTPX/TestClient, Git, Black |
+| Backend | Python 3.12, FastAPI, Uvicorn, Pydantic, asyncio |
+| Persistence | SQLite, Python sqlite3, WAL journaling, relational constraints |
+| Integrations | HTTPX, OpenAI Chat Completions, PhantomBuster |
+| Deployment | Docker, Docker Compose, Linux, AWS EC2 |
+| Verification | pytest, mocked HTTP transports, simulated clocks, Ruff |
+| Versioning | Git and a private GitHub repository |
 
-These are technologies used in the inspected project, not a claim of certifications or expertise in every product feature. No managed queue, Kubernetes cluster, automated infrastructure provisioning, or production evaluation platform is claimed.
+## Evidence and current scope
+
+The development ledger records **616 passing offline tests** on 1 November 2026, with three explicit Search-related exclusions. A synthetic integration scenario exercises **150 companies and 450 person-company associations**, including simulated quota waits and restarts. These are test dimensions, not acquired customers, real invitations or throughput benchmarks.
+
+Repository records also document limited live classification and invitation-handoff verification, and historical EC2 deployment checks. They do not establish a complete unattended production pipeline or current provider authentication. Application tests and production health checks were not rerun for this documentation export.
 
 ## Demonstrated competencies
 
-The project provides concrete examples for Applied AI and AI Engineering roles through typed model integration, source-aware validation and bounded execution; for Backend Engineering through contracts, concurrency, authorization and file handling; and for Cloud/DevOps roles through container packaging, cloud deployment procedures, gateway integration and recovery discipline.
+Backend API design; relational data modelling; asynchronous provider integration; applied LLM engineering; transactional recovery; duplicate prevention; deterministic testing; container hardening; and evidence-based deployment verification.
 
-This case study documents project artifacts and their verification. It does not establish exclusive authorship, employment history, team size, user adoption, or commercial impact.
+This case study describes project-level implementation and recorded results. Employment history, certifications, exclusive authorship and unmeasured business impact are not inferred from the repository.
 
-## Portfolio navigation
+## Reading guide
 
-- [Architecture](ARCHITECTURE.md): components, flows and tradeoffs.
-- [Engineering](ENGINEERING.md): implementation techniques and technical challenges.
-- [Operations](OPERATIONS.md): testing, deployment, observability and maintenance.
-- [Evidence](EVIDENCE.md): claim-by-claim implementation and verification status.
+- [ARCHITECTURE.md](ARCHITECTURE.md): components, data flow and tradeoffs.
+- [ENGINEERING.md](ENGINEERING.md): implementation, AI integration and reliability mechanisms.
+- [OPERATIONS.md](OPERATIONS.md): deployment, observability and maintenance.
+- [EVIDENCE.md](EVIDENCE.md): accomplishment register, verification boundaries and limitations.
 
-This directory is self-contained. It intentionally omits private source links, deployment addresses, credentials, customer records and access instructions.
+Prepared on **14 November 2026**. This directory is designed for extraction into a public portfolio. Source-file mappings, private revision identifiers and operational evidence locations are retained separately and are not required to understand these documents.

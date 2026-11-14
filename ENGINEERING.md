@@ -1,66 +1,60 @@
-# Engineering Implementation
+# Engineering implementation
 
-## Backend contracts and authorization
+## Backend framework and packaging
 
-FastAPI exposes service boundaries, Pydantic defines typed wire models, and Uvicorn runs the applications. Request handling separates authentication, parsing, local ownership acceptance and subsequent worker execution.
+Python 3.12 services use FastAPI and Uvicorn. A shared application factory installs consistent lifecycle hooks and routes; service adapters supply business-specific validation, intake, discovery and result handling. Each image installs its own application package and the shared runtime/storage packages rather than requiring all sibling services.
 
-Admission persists entitlements and quota receipts in SQLite. Entitlement tokens are compared through HMAC-derived hashes rather than stored plaintext tokens. A transaction checks a request receipt, verifies available quota, updates usage and inserts the receipt. Duplicate request identifiers therefore do not automatically consume another unit of quota or enqueue the same recorded request again.
+Pydantic request models use strict validation and reject unexpected fields. Standalone input and pipeline-reference modes are mutually exclusive. The input loader bounds body size, CSV size, row count, redirects and download time. Caller authentication compares bearer credentials using a constant-time comparison. Health checks can inspect local storage without dispatching work; authenticated status distinguishes execution, backlog, wait reasons and provider observations.
 
-Boundary API secrets authenticate inter-service calls. The direct Delivery interface uses the existing application authentication boundary behind a TLS reverse proxy. This is service-key authentication, not a full identity platform, customer OAuth service or fine-grained per-client authorization system.
+The implementation uses asynchronous HTTP with HTTPX and moves blocking SQLite operations into threads. Runtime cancellation, execution deadlines and graceful shutdown have explicit failure-handling paths. The design does not rely on framework process restarts to resolve business uncertainty.
 
-## Concurrency and bounded ownership
+## Relational state and result integrity
 
-Admission and Router own handoff queues; tasks own execution queues; Delivery owns outbound submission. Capacity checks cover configured item and byte/storage bounds, with disk-availability checks at relevant receivers.
+The database separates canonical entities, person-company associations, application work, owned results and result references. Material input fingerprints provide a reproducible basis for admission and reuse. Foreign keys and uniqueness constraints complement application validation; database triggers enforce selected capacity and protection invariants.
 
-Task workers serialize requests sharing the same execution key. A concurrency repair replaced requeueing under contention with a condition-variable wait, avoiding a saturated-queue deadlock pattern. Regression coverage constructs the full-queue/same-key condition and checks that all submitted jobs make progress.
+Claims run in short immediate transactions. Network I/O occurs outside the writer transaction. Provider IDs are persisted before subsequent monitoring, and result validation precedes atomic result/completion commits. Schema initialization recognises supported versions and rejects an unknown populated database rather than silently adopting it. The repository contains targeted schema conversions, not a general migration platform.
 
-These are local process controls. They do not coordinate multiple replicas or make queue contents durable. Capacity accounting is not a global memory budget and does not reserve the future size of every generated artifact.
+This addresses two different duplication risks: the same input being admitted again and different inputs referring to the same canonical person. Retention preserves referenced results and minimal contact-protection records even when ordinary operational detail becomes eligible for cleanup.
 
-## Attachment handling
+## Applied AI approach
 
-The canonical descriptor contains artifact identity, a safe display filename, MIME type and byte count. Equivalent models are maintained inside the participating services without cross-task runtime imports.
+The Classifier integrates **OpenAI Chat Completions through a bounded HTTP transport**. It is an inference application; the repository does not implement model pretraining, fine-tuning or an embedding-based retrieval index.
 
-The implementation:
+Company and profile facts are combined with a controlled website-research context. A local HTML reader selects in-scope company pages, extracts text and retains attributable excerpts. It applies page, response-size, token/context and elapsed-time limits. This provides a bounded evidence surface instead of granting the model arbitrary browsing access.
 
-- Refuses unsafe filenames, control characters, malformed MIME types, mismatched descriptors and duplicate artifact identities.
-- Copies uploaded data in bounded chunks and enforces a 25 MiB aggregate attachment limit at receiving multipart boundaries.
-- Gives duplicate display filenames distinct receiver-local files instead of overwriting earlier inputs.
-- Confines selected output paths beneath the task's request directory and checks their actual sizes.
-- Removes local artifact paths from outgoing diagnostic metadata.
-- Validates Delivery requests and blocked file types before queue acceptance, then rechecks files before provider submission.
-- Creates MIME attachments with preserved filenames, content types and bytes.
-- Cleans task-local and receiver-local files after completion, refusal or handled failure, with explicit cleanup-failure evidence.
+Requests use a structured JSON Schema response contract. Local validation checks the response envelope, completion status, decision structure, subject/source attribution and evidence references. A structurally valid output can still be rejected when its attribution or required grounding is invalid. Such checks constrain admissible evidence; they do not prove every model conclusion semantically correct.
 
-The base AI task always creates a text artifact containing its model response alongside the email body. Both JSON and multipart ingress create the request scope needed for that output. An absent scope fails before the provider call. The base model request consumes request text; it is not itself a general document-understanding path for arbitrary incoming attachments.
+The application preserves an explicit uncertain assessment when evidence is insufficient. A technical failure or incomplete response is distinct from a negative business decision. The rubric is versioned, and a material policy change must not silently reuse an older decision. The private commercial rubric and prompt are intentionally omitted from this portfolio.
 
-## Applied AI workflow
+## Paid-request uncertainty and receipts
 
-The specialized notification-analysis task demonstrates a more structured pattern:
+A model request's correlation and attempt state are tracked independently from its accepted decision. Received responses are written to private local receipts using a temporary file, file synchronization and atomic replacement. A database commit can therefore recover an already-received correlated result after interruption without generating again.
 
-1. Assemble source records with deterministic identifiers.
-2. Apply mechanical input eligibility checks.
-3. Prepare supported provider files and text inputs.
-4. Invoke a tool-free agent with typed structured output and a configured single-turn bound.
-5. Post-process accepted facts against available source text.
-6. Render a deterministic Portuguese report with review indicators.
-7. Attempt bounded cleanup of provider-side file resources.
+Receipt recovery validates ownership and current inputs before committing. Missing or unusable receipts do not justify repeating an uncertain paid request. An explicit correlated retry path exists, with separate checks; it is not an automatic network retry policy. Database and receipt recovery must be considered together.
 
-The workflow uses the OpenAI Agents SDK and Pydantic output types. Model interpretation is separated from deterministic source checks, formatting and policy outcomes. It uses explicit completed, refused, temporarily unavailable and internal-failure result categories rather than treating every model response as success.
+## Provider integration
 
-Exact dates, amounts, identifiers and legal references retain their source text. Unsupported exact facts are dropped when they cannot be established in locally readable text; unambiguous formats can receive separate normalized values. This does not verify every paraphrase, inference or requested action.
+PhantomBuster integrations use typed input projections and bounded requests. The streaming launch transport captures the provider's execution identifier early. Subsequent status and result reads bind to that identifier. Temporary launch arguments preserve saved provider settings; the application does not treat guessed argument shapes as a verified contract.
 
-PDFs are supplied to the provider without local OCR or PDF text extraction. PDF facts cannot receive the same local substring check and require review flags. This is a documented verification limitation, not a solved document-grounding guarantee.
+Monitoring distinguishes provider process termination from successful result validation. Empty, malformed or mismatched results do not automatically become completed business evidence. The implementation uses separate handling for confirmed terminal failures and unresolved external activity.
 
-Optional, bounded read-only resolution of official legal references adds documentary context. It does not establish a law's current applicability, legal effect or correctness of advice. Professional review remains necessary for consequential interpretations.
+Invitation handling adds persistent person-level suppression, operating-window checks, launch intervals and daily/weekly capacity checks. These decisions use persisted dispatch evidence, including uncertainty spanning a calendar boundary. Provider acknowledgment records a handoff; delivery and recipient acceptance remain separate facts.
 
-## Reliability and maintainability
+## Reliability repairs
 
-Gmail client construction supports access-token refresh in memory. Renewal of the mailbox watch preserves an existing processing checkpoint and initializes one only when absent, preventing renewal from silently skipping outstanding history. Access-token refresh and watch renewal are separate maintenance concerns.
+Two repairs illustrate the lifecycle design:
 
-Independent Docker contexts keep tasks buildable without the reference implementation. Ignore rules exclude environment files, credentials and persistent state from build contexts. Schema and concurrency tests protect shared contracts without introducing a shared task runtime.
+1. **Abandoned local attempts:** on the first idle startup tick, work left processing without a known provider ID becomes failed. Existing error context and uncertainty guards remain, preventing an orphaned state from authorising a new launch.
+2. **Classifier recovery after local failure:** finalisation accepts owned, unresolved failed work as well as processing work. It preserves paid uncertainty, retains guards for known remote activity and can release the local slot when the existing recovery conditions permit it.
 
-Structured lifecycle events carry correlation identifiers and distinguish handoff acceptance, provider outcome and cleanup. Sensitive agent payload tracing is disabled in the specialized workflow. These measures are useful engineering controls, not evidence of a complete security audit or a certified compliance program.
+Fault-injection tests cover process death during an uncommitted transaction, fresh-runtime recovery, result-commit interruption, missing receipts and terminal failure across restart. These mechanisms improve recoverability without promising that every historical hold is automatically resolvable.
 
-## Deliberate limits
+## Security and maintainability
 
-There is no implemented calibrated production evaluator, semantic-accuracy benchmark, model repair loop, durable job broker, automatic replay engine or reconciliation service. The project does not demonstrate a trained custom model or an enterprise-scale multi-agent orchestration platform. Its strength is integration discipline around a bounded AI task, not model-training or scale claims.
+- Input and research downloads enforce destination scope, public-address checks, bounded redirects and certificate validation. DNS-aware transports address private-destination and rebinding risks; these controls are not represented as a complete security audit.
+- Logs use structured events and suppress detailed HTTP tracing. Error responses avoid reflecting supplied private values and raw exception text.
+- Docker images use a digest-pinned Python base and hash-checked dependency installation. Runtime containers use a non-root identity, read-only root filesystem, reduced capabilities, bounded temporary storage and process limits.
+- Provider execution and automation have independent enablement flags and disabled defaults. Starting a service alone is not intended to enable paid or externally visible work.
+- Dependency versions, package resources, offline fixtures, versioned decision contracts and operator runbooks support repeatable maintenance.
+
+See [operations](OPERATIONS.md) for the limits of operational verification and [evidence](EVIDENCE.md) for what the recorded checks establish.
