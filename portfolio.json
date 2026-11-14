@@ -1,0 +1,375 @@
+{
+  "schema_version": 1,
+  "repository_kind": "documentation_portfolio",
+  "content_baseline_date": "2026-11-14",
+  "target_roles": [
+    "Backend Engineer",
+    "Applied AI Engineer",
+    "Cloud-focused Software Engineer"
+  ],
+  "implementation_access": {
+    "visibility": "private",
+    "available_on_request": true,
+    "request_method": "Use the channel through which this portfolio was shared; name the project and capability to review."
+  },
+  "evidence_policy": {
+    "source": "User-supplied private-project documentation exports.",
+    "application_tests_executed_in_this_repository": false,
+    "examples": "Illustrative synthetic explanations; not source excerpts, runnable demos, or new results.",
+    "claim_identifiers": "Project-scoped: <project-id>:<E-number>.",
+    "verification_limit": "Public descriptions and reported records require private source access for independent implementation verification.",
+    "metric_dates": "observed_on is the reported run/operation date; null means the supplied export does not establish the exact date."
+  },
+  "projects": [
+    {
+      "id": "qdf",
+      "name": "QDF — AI Email Processing Framework",
+      "aliases": [
+        "QDF"
+      ],
+      "summary": "Service-owned Gmail ingress, entitlement admission, bounded AI task execution, and attachment-capable email delivery.",
+      "stack": [
+        "Python 3.12",
+        "FastAPI",
+        "Pydantic",
+        "Uvicorn",
+        "SQLite",
+        "OpenAI Responses API",
+        "OpenAI Agents SDK",
+        "Gmail API",
+        "Google Cloud Pub/Sub",
+        "OAuth 2.0",
+        "Docker Compose",
+        "Nginx",
+        "AWS EC2"
+      ],
+      "capabilities": [
+        {
+          "id": "transactional-admission",
+          "summary": "Transactional entitlement checks and quota receipts",
+          "evidence_ids": [
+            "E02"
+          ],
+          "evidence_document": "projects/qdf/EVIDENCE.md",
+          "status": "implementation_described_in_supplied_export"
+        },
+        {
+          "id": "bounded-execution",
+          "summary": "Process-local queues and same-key contention handling",
+          "evidence_ids": [
+            "E03"
+          ],
+          "evidence_document": "projects/qdf/EVIDENCE.md",
+          "status": "implementation_described_in_supplied_export"
+        },
+        {
+          "id": "attachment-handoffs",
+          "summary": "Validated receiver-owned files and explicit output selection",
+          "evidence_ids": [
+            "E04",
+            "E05"
+          ],
+          "evidence_document": "projects/qdf/EVIDENCE.md",
+          "status": "implementation_described_in_supplied_export"
+        },
+        {
+          "id": "typed-ai-validation",
+          "summary": "Typed interpretation and deterministic source checks",
+          "evidence_ids": [
+            "E06",
+            "E07"
+          ],
+          "evidence_document": "projects/qdf/EVIDENCE.md",
+          "status": "implementation_described_in_supplied_export"
+        }
+      ],
+      "metrics": [
+        {
+          "id": "reported-tests",
+          "value": 138,
+          "unit": "passing_tests",
+          "observed_on": "2026-11-14",
+          "provenance": "export_time_test_rerun_reported",
+          "evidence_ids": [
+            "E11"
+          ],
+          "qualifications": "Providers mocked; three separately executed suites counted once; website excluded.",
+          "evidence_document": "projects/qdf/EVIDENCE.md",
+          "executed_in_this_repository": false
+        },
+        {
+          "id": "reported-subtests",
+          "value": 3,
+          "unit": "passing_subtests",
+          "observed_on": "2026-11-14",
+          "provenance": "export_time_test_rerun_reported",
+          "evidence_ids": [
+            "E11"
+          ],
+          "qualifications": "Separate subtest count; do not describe these as additional top-level tests.",
+          "evidence_document": "projects/qdf/EVIDENCE.md",
+          "executed_in_this_repository": false
+        }
+      ],
+      "limitations": [
+        "Accepted work in local queues is volatile.",
+        "Quota deduplication does not establish exactly-once execution or delivery.",
+        "PDF facts lack the local text checks available for readable sources.",
+        "Retrieval-oriented task excluded from operational acceptance.",
+        "Current uptime and model accuracy are not established."
+      ],
+      "directory": "projects/qdf",
+      "documents": {
+        "overview": "projects/qdf/README.md",
+        "decisions": "projects/qdf/DECISIONS.md",
+        "examples": "projects/qdf/EXAMPLES.md",
+        "architecture": "projects/qdf/ARCHITECTURE.md",
+        "engineering": "projects/qdf/ENGINEERING.md",
+        "operations": "projects/qdf/OPERATIONS.md",
+        "evidence": "projects/qdf/EVIDENCE.md"
+      }
+    },
+    {
+      "id": "job-researcher",
+      "name": "JobResearcher — Job Discovery and Application Preparation",
+      "aliases": [
+        "JobResearcher",
+        "Job Researcher"
+      ],
+      "summary": "Bounded vacancy discovery, evidence-linked assessments, approved-fact PDF preparation, and human-controlled browser submission.",
+      "stack": [
+        "Python 3.12+",
+        "FastAPI",
+        "Uvicorn",
+        "HTTPX",
+        "SQLite",
+        "OpenAI API",
+        "JSON Schema",
+        "Playwright",
+        "Chromium",
+        "pypdf",
+        "GitHub API",
+        "Gmail API",
+        "OAuth 2.0 with PKCE",
+        "Docker Compose",
+        "AWS EC2"
+      ],
+      "capabilities": [
+        {
+          "id": "versioned-assessments",
+          "summary": "Content/context-bound assessments and retained history",
+          "evidence_ids": [
+            "E02",
+            "E05"
+          ],
+          "evidence_document": "projects/job-researcher/EVIDENCE.md",
+          "status": "implementation_described_in_supplied_export"
+        },
+        {
+          "id": "evidence-grounded-selection",
+          "summary": "Structured AI with evidence IDs and deterministic eligibility checks",
+          "evidence_ids": [
+            "E03",
+            "E04"
+          ],
+          "evidence_document": "projects/job-researcher/EVIDENCE.md",
+          "status": "implementation_described_in_supplied_export"
+        },
+        {
+          "id": "validated-documents",
+          "summary": "Approved facts, project coverage, PDF content/page validation",
+          "evidence_ids": [
+            "E07"
+          ],
+          "evidence_document": "projects/job-researcher/EVIDENCE.md",
+          "status": "implementation_described_in_supplied_export"
+        },
+        {
+          "id": "human-browser-handoff",
+          "summary": "Same-session review and conservative submission recovery",
+          "evidence_ids": [
+            "E08",
+            "E09"
+          ],
+          "evidence_document": "projects/job-researcher/EVIDENCE.md",
+          "status": "implementation_described_in_supplied_export"
+        }
+      ],
+      "metrics": [
+        {
+          "id": "reported-tests",
+          "value": 379,
+          "unit": "passing_tests",
+          "observed_on": "2026-11-13",
+          "provenance": "historical_test_run_reported",
+          "evidence_ids": [],
+          "qualifications": "Recorded suite, one warning; not rerun for the export.",
+          "evidence_document": "projects/job-researcher/EVIDENCE.md",
+          "executed_in_this_repository": false
+        },
+        {
+          "id": "verified-additional-boards",
+          "value": 104,
+          "unit": "verified_additional_boards",
+          "observed_on": null,
+          "provenance": "historical_source_expansion_reported",
+          "evidence_ids": [
+            "E01"
+          ],
+          "qualifications": "104 of 106 proposed additional boards; two responses exceeded the existing size limit. Total configured sources: 109, including five original feeds.",
+          "evidence_document": "projects/job-researcher/EVIDENCE.md",
+          "executed_in_this_repository": false
+        },
+        {
+          "id": "reassessed-jobs",
+          "value": 1722,
+          "unit": "stored_jobs_reassessed",
+          "observed_on": "2026-11-13",
+          "provenance": "historical_deployment_record",
+          "evidence_ids": [
+            "E05"
+          ],
+          "qualifications": "Policy refresh reused technical assessments without a batch model rerun; retained 2,098 prior assessment records.",
+          "evidence_document": "projects/job-researcher/EVIDENCE.md",
+          "executed_in_this_repository": false
+        }
+      ],
+      "limitations": [
+        "Final submissions remain human-controlled in the latest recorded mode.",
+        "Form recipes are provider-specific; verification can require manual completion.",
+        "Selection text rules are heuristic.",
+        "A PDF check does not establish universal ATS compatibility.",
+        "No hiring outcome, exhaustive coverage, or model accuracy metric is established."
+      ],
+      "directory": "projects/job-researcher",
+      "documents": {
+        "overview": "projects/job-researcher/README.md",
+        "decisions": "projects/job-researcher/DECISIONS.md",
+        "examples": "projects/job-researcher/EXAMPLES.md",
+        "architecture": "projects/job-researcher/ARCHITECTURE.md",
+        "engineering": "projects/job-researcher/ENGINEERING.md",
+        "operations": "projects/job-researcher/OPERATIONS.md",
+        "evidence": "projects/job-researcher/EVIDENCE.md"
+      }
+    },
+    {
+      "id": "prospect-orchestrator",
+      "name": "Prospect Orchestrator — Persistent Enrichment and AI Classification",
+      "aliases": [
+        "Prospect Orchestrator",
+        "QDF Prospect Orchestrator"
+      ],
+      "summary": "Persistent company/person enrichment, bounded AI classification, controlled invitation handoff, and external-operation recovery.",
+      "stack": [
+        "Python 3.12",
+        "FastAPI",
+        "Pydantic",
+        "Uvicorn",
+        "asyncio",
+        "HTTPX",
+        "SQLite",
+        "OpenAI Chat Completions",
+        "PhantomBuster",
+        "Docker Compose",
+        "AWS EC2",
+        "pytest",
+        "Ruff"
+      ],
+      "capabilities": [
+        {
+          "id": "transactional-workflow",
+          "summary": "Stable identities, claim transactions, and result references",
+          "evidence_ids": [
+            "E03"
+          ],
+          "evidence_document": "projects/prospect-orchestrator/EVIDENCE.md",
+          "status": "implementation_described_in_supplied_export"
+        },
+        {
+          "id": "external-operation-recovery",
+          "summary": "Known-ID monitoring, orphan handling, and uncertainty guards",
+          "evidence_ids": [
+            "E04",
+            "E05"
+          ],
+          "evidence_document": "projects/prospect-orchestrator/EVIDENCE.md",
+          "status": "implementation_described_in_supplied_export"
+        },
+        {
+          "id": "paid-response-recovery",
+          "summary": "Correlated local receipts and interrupted-commit recovery",
+          "evidence_ids": [
+            "E08"
+          ],
+          "evidence_document": "projects/prospect-orchestrator/EVIDENCE.md",
+          "status": "implementation_described_in_supplied_export"
+        },
+        {
+          "id": "invitation-protection",
+          "summary": "Person-level suppression and schedule/quota checks",
+          "evidence_ids": [
+            "E09"
+          ],
+          "evidence_document": "projects/prospect-orchestrator/EVIDENCE.md",
+          "status": "implementation_described_in_supplied_export"
+        }
+      ],
+      "metrics": [
+        {
+          "id": "reported-tests",
+          "value": 616,
+          "unit": "passing_tests",
+          "observed_on": "2026-11-01",
+          "provenance": "historical_development_ledger",
+          "evidence_ids": [],
+          "qualifications": "Three Search-related exclusions; includes snapshot-dependent checks; not rerun for the export.",
+          "evidence_document": "projects/prospect-orchestrator/EVIDENCE.md",
+          "executed_in_this_repository": false
+        },
+        {
+          "id": "synthetic-companies",
+          "value": 150,
+          "unit": "synthetic_companies",
+          "observed_on": null,
+          "provenance": "synthetic_scenario_in_reviewed_ledger",
+          "evidence_ids": [
+            "E10"
+          ],
+          "qualifications": "Test scenario dimensions; not acquired customers or measured throughput.",
+          "evidence_document": "projects/prospect-orchestrator/EVIDENCE.md",
+          "executed_in_this_repository": false
+        },
+        {
+          "id": "synthetic-associations",
+          "value": 450,
+          "unit": "synthetic_person_company_associations",
+          "observed_on": null,
+          "provenance": "synthetic_scenario_in_reviewed_ledger",
+          "evidence_ids": [
+            "E10"
+          ],
+          "qualifications": "Test scenario dimensions with mocked providers; not real invitations.",
+          "evidence_document": "projects/prospect-orchestrator/EVIDENCE.md",
+          "executed_in_this_repository": false
+        }
+      ],
+      "limitations": [
+        "Search Export has no business adapter.",
+        "No universal scheduler prevents overlap of all external Phantoms.",
+        "Provider acknowledgment is separate from delivery and acceptance.",
+        "Shared SQLite has a single writer and a single-host deployment scope.",
+        "Full live-pipeline acceptance and current authentication are not established."
+      ],
+      "directory": "projects/prospect-orchestrator",
+      "documents": {
+        "overview": "projects/prospect-orchestrator/README.md",
+        "decisions": "projects/prospect-orchestrator/DECISIONS.md",
+        "examples": "projects/prospect-orchestrator/EXAMPLES.md",
+        "architecture": "projects/prospect-orchestrator/ARCHITECTURE.md",
+        "engineering": "projects/prospect-orchestrator/ENGINEERING.md",
+        "operations": "projects/prospect-orchestrator/OPERATIONS.md",
+        "evidence": "projects/prospect-orchestrator/EVIDENCE.md"
+      }
+    }
+  ]
+}
