@@ -1,4 +1,6 @@
-# Operations
+# Prospect Orchestrator — Operations
+
+> Source: the supplied private-project case-study export, reviewed on 14 November 2026. Test and deployment statements below describe that export and its dated records; they were not rerun in this public documentation repository.
 
 ## Deployment architecture
 

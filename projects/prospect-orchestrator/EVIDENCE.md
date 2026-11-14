@@ -1,6 +1,8 @@
-# Evidence and verification boundaries
+# Prospect Orchestrator — Evidence and verification boundaries
 
-Prepared on **14 November 2026** from the actual local checkout, its tests and operational documentation, with supplementary dated repository history reviewed read-only. Source locations and exact revisions are mapped in a separate private evidence report outside this export.
+> Source: the supplied private-project case-study export, reviewed on 14 November 2026. Test and deployment statements below describe that export and its dated records; they were not rerun in this public documentation repository.
+
+The original export was prepared on **14 November 2026** from the private application checkout, its tests and operational documentation, with supplementary dated repository history reviewed read-only. Source locations and exact revisions are mapped in a separate private evidence report outside this public case study. The private application source and tests are not included in this documentation repository.
 
 ## Interpretation
 
@@ -67,7 +69,7 @@ Application tests were not rerun, containers were not built or started, and prod
 
 ## Publication and attribution
 
-Only the five documents in this directory are intended for public extraction. They contain no actual host addresses, agent identifiers, credentials, private connection procedures, customer records, proprietary prompt text or invitation copy. Links stay within the exported documents; public readers are not sent to inaccessible private source files.
+The original five-document export and the supplementary decision record and illustrative examples form this public case study. They contain no actual host addresses, agent identifiers, credentials, private connection procedures, customer records, proprietary prompt text or invitation copy. Project links stay within the case study; public readers are not sent to inaccessible private source files. The supplementary explanations add no new application test run or live operational observation.
 
 Accomplishments are attributed to the project and its evidence. The repository records an AI-assisted development workflow; exclusive manual authorship, professional qualifications and employment responsibilities cannot be inferred from commit ownership alone.
 

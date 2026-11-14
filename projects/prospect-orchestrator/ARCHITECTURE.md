@@ -1,8 +1,10 @@
-# Architecture
+# Prospect Orchestrator — Architecture
+
+> Source: the supplied private-project case-study export, reviewed on 14 November 2026. Test and deployment statements below describe that export and its dated records; they were not rerun in this public documentation repository.
 
 ## System shape
 
-QDF is a single-host application composed of seven independently packaged Python services and one persistent relational database. Services coordinate through committed database state; there is no central workflow service, message broker or direct downstream-service invocation.
+Prospect Orchestrator is a single-host application composed of seven independently packaged Python services and one persistent relational database. Services coordinate through committed database state; there is no central workflow service, message broker or direct downstream-service invocation.
 
 Each implemented service runs one asynchronous execution owner. The common runtime polls for eligible work, while synchronous database operations run in worker threads. Network operations have separate timeouts and do not hold database writer locks.
 
