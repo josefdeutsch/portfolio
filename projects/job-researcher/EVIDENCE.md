@@ -47,6 +47,8 @@ These are dated engineering observations. They are not customer adoption, hiring
 
 The repository includes direct email delivery, registration/login recipes, persisted browser state, verification-response handling, and provider-specific upload controls. Supported workflows require suitable recipes and authorization. Mocked success does not prove arbitrary live account creation or general ATS automation. Current recorded operation uses human review and final action.
 
+CAPTCHA, personal declarations, and unsupported controls can require human action. PDF text/page checks validate the configured document constraints, not universal ATS compatibility. A valid response schema does not establish semantic accuracy.
+
 Changing a portfolio repository's identity or visibility can invalidate its cached verification state under the present implementation. The export documents that constraint; it does not change visibility policy or repair the running integration.
 
 ## Experimental, planned, or unproven areas

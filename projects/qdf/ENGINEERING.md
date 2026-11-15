@@ -10,6 +10,12 @@ Admission persists entitlements and quota receipts in SQLite. Entitlement tokens
 
 Boundary API secrets authenticate inter-service calls. The direct Delivery interface uses the existing application authentication boundary behind a TLS reverse proxy. This is service-key authentication, not a full identity platform, customer OAuth service or fine-grained per-client authorization system.
 
+## Standard Fix structure
+
+Each Fix separates FastAPI endpoints, local configuration and wire models, execution orchestration, task-specific logic, and delivery/parsing utilities. The execution layer owns request parsing, correlation, task invocation, response construction, delivery handoff, and cleanup; the task module owns the workload's algorithm and output rendering.
+
+The reference Fix supplies a copy-and-adapt structure. Each implementation owns its code and complete Docker build context rather than inheriting a shared runtime superclass. Common health/readiness/version and execution contracts, explicit text/file delivery intent, and cleanup semantics remain consistent while providers, algorithms, dependencies, and task-specific output may differ. These boundaries are corroborated by the private implementation guide and operational contracts reviewed on 14 November 2026; this inspection adds no runtime test result.
+
 ## Concurrency and bounded ownership
 
 Admission and Router own handoff queues; tasks own execution queues; Delivery owns outbound submission. Capacity checks cover configured item and byte/storage bounds, with disk-availability checks at relevant receivers.

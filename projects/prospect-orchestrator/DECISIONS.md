@@ -8,6 +8,8 @@ Downstream eligibility depends on committed upstream evidence, ownership, and su
 
 Polling avoids a separate broker and keeps dependency checks near transactional state. The cost is polling latency, a shared schema, and SQLite's single writer. Independent packages do not mean independent databases or horizontally scalable workers. A multi-host or high-write workload would require revisiting storage and coordination. See E01 and E03.
 
+In the 15 November 2026 contribution interview, the author identified a further design motive: a batch at one stage can produce much larger downstream work, while each Phantom requires independent scheduling and bounded external-query frequency. Shared committed state separates downstream eligibility and result reuse from immediate stage-to-stage triggering. This is an author-reported design rationale; it does not establish provider-policy compliance or enabled live model scheduling. See [contribution evidence](EVIDENCE.md) and E15.
+
 ## Reusable runtime with independent adapters
 
 FastAPI, Pydantic, and Uvicorn provide strict intake and health/status surfaces. Shared runtime/storage packages handle common polling, claims, timeouts, and failure recording, while adapters implement service-specific business behavior.
@@ -24,7 +26,7 @@ HTTPX transport limits and explicit deadlines bound work, but cancellation canno
 
 PhantomBuster adapters use conservative typed scalar projections rather than guessing provider batch serialization. Known execution IDs bind status and result reads to the operation already launched. This protects ownership and result attribution at the cost of additional launches and unresolved holds when acceptance cannot be established.
 
-A saved provider maximum is not a verified batch contract. The system also has no universal scheduler proving non-overlap of every Phantom. See E04 and [provider integration](ENGINEERING.md).
+A saved provider maximum is not a verified batch contract. Shared durable admission coordinates QDF-controlled Phantom launches; external dashboard schedules, manual provider launches, and other tools remain outside its authority. See E04 and [provider integration](ENGINEERING.md).
 
 ## Bounded research and structured Chat Completions
 

@@ -18,6 +18,8 @@ The important boundary is what the database contains. It stores entitlements and
 
 Each receiver authenticates, validates, copies required files, and reserves local capacity before accepting ownership. Queues decouple HTTP acceptance from slower provider work and bound local contention without a distributed broker.
 
+In the 14 November 2026 contribution interview, the author identified this boundary choice as their own: keep each container responsible for its local work and let the sender finish once the receiver accepts ownership. The stated rationale was to avoid the complexity of having upstream containers track downstream completion. This records the author’s design rationale; acceptance remains distinct from completed execution or mailbox receipt. See [contribution evidence](EVIDENCE.md).
+
 This is a deliberately limited guarantee: queue state is process-local and volatile. Backpressure prevents accepting unlimited work; it does not make accepted work durable. A requirement to replay jobs after a crash would call for persisted job state and a reconciliation design. The existing system does not provide that redesign. See E01 and E03.
 
 Same-key exclusion prevents overlapping execution for a local key. Waiting on a condition variable addresses the documented saturated-queue requeue deadlock. It does not coordinate execution across multiple replicas. One Gmail worker also simplifies local outbound ownership while imposing a submission bottleneck.

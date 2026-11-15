@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "repository_kind": "documentation_portfolio",
-  "content_baseline_date": "2026-11-14",
+  "content_baseline_date": "2026-11-15",
   "target_roles": [
     "Backend Engineer",
     "Applied AI Engineer",
@@ -127,6 +127,18 @@
         "engineering": "projects/qdf/ENGINEERING.md",
         "operations": "projects/qdf/OPERATIONS.md",
         "evidence": "projects/qdf/EVIDENCE.md"
+      },
+      "personal_contribution": {
+        "statement": "I defined QDF’s technical requirements and architecture as an email entry point to AI workloads, with API and webhook interfaces. Drawing on my Python development experience, I designed the project structure, FastAPI endpoints, and separation between execution orchestration in `exec/` and workload logic in `task/`.\n\nI designed a standard Fix structure so independent workloads follow common request-handling and delivery contracts and can return text, attachments, or both. Each Fix adapts the reference implementation while owning its code, dependencies, and container. I deliberately chose simple ownership boundaries: once the receiving service accepts a handoff, the sender finishes its responsibility without tracking downstream completion.\n\nI began working with cloud Codex in February 2026. I chose prompt critique and iterative specification refinement over test-driven development as my primary approach. Influenced by Andrew Ng’s teaching on reflection, I experimented with critiques, read through prompts and AI output, and refined ambiguous language until the intended behavior was clear. Translating natural-language requirements into API mocks was one example of this broader workflow. Early execution testing used unit tests and mocked APIs, without live-provider testing at that stage.\n\nI handled EC2 deployment end to end, personally making configuration changes, deploying containers, and running runtime commands, including `docker exec`. I used a test Fix for container lifecycle validation and inspected a separate email session to confirm receipt of the result. I developed the operational contracts and guides through a mixture of my own work and AI assistance, using AI to write functions under my direction.\n\nMy original privacy requirement was to inspect incoming metadata without retaining it. The implemented framework retains limited operational state, including quota receipts, a mailbox-history checkpoint, and diagnostic identifiers. That distinction separates the original requirement from the implementation’s actual retention boundaries.\n\nQDF already tracks workflows through correlation IDs, timestamps, and lifecycle events. My next priority is durably preserving that existing evidence to improve operational reliability. The longer-term goal is to recover interrupted AI workloads without requiring users to resend their requests. Durable execution, retries, replay, and reconciliation remain planned; preserving workflow metadata is a foundation for that work, rather than a complete recovery mechanism.",
+        "verified_scope": "author_reported_contributions; private_contract_review_corroborates_structure_and_capability_boundaries_only",
+        "provenance": "Author's contribution interview and read-only review of the private Fix guide and operational framework contracts, 14 November 2026; no independent authorship audit or new application test run.",
+        "application_responsibilities": "Specific hand-written functions, personal ownership of individual debugging repairs, and fine-grained authorship of contract passages remain unattributed. The author reports mixed personal/AI work on the contracts and personally chose the handoff boundary.",
+        "retention_requirement": "Inspect incoming metadata without retaining it: author-stated design goal, not a verified system-wide guarantee. Diagnostic identifiers, entitlement/quota receipts, and a history checkpoint exist.",
+        "manual_validation_scope": "Author reports a test Fix for Docker lifecycle validation and a separate email session for receipt checks. Exact run date and independent external-recipient coverage are not established.",
+        "planned_work": "Correlation-based lifecycle tracking already exists. First author-stated priority: durable preservation/backing storage for existing workflow evidence (correlation IDs, timestamps, and lifecycle history), toward recovery without user resubmission. A persistent workflow ledger, durable execution, retries/replay, reconciliation, durable attachment storage, scanning, and broader automation remain future scope. Metadata alone does not establish recoverable inputs or safe replay.",
+        "evidence_document": "projects/qdf/EVIDENCE.md",
+        "author_approved_on": "2026-11-15",
+        "approved_account_document": "projects/qdf/EVIDENCE.md"
       }
     },
     {
@@ -259,7 +271,7 @@
         "Prospect Orchestrator",
         "QDF Prospect Orchestrator"
       ],
-      "summary": "Persistent company/person enrichment, bounded AI classification, controlled invitation handoff, and external-operation recovery.",
+      "summary": "Persistent enrichment and classification, shared launch admission, and an isolated operations/repair agent with independent host authority; live operations-model inference disabled.",
       "stack": [
         "Python 3.12",
         "FastAPI",
@@ -273,7 +285,8 @@
         "Docker Compose",
         "AWS EC2",
         "pytest",
-        "Ruff"
+        "Ruff",
+        "systemd"
       ],
       "capabilities": [
         {
@@ -312,17 +325,40 @@
           ],
           "evidence_document": "projects/prospect-orchestrator/EVIDENCE.md",
           "status": "implementation_described_in_supplied_export"
+        },
+        {
+          "id": "shared-launch-admission",
+          "summary": "Transactional launch admission with fair tickets, reviewed allowances, cooldowns and uncertainty holds",
+          "evidence_ids": [
+            "E15"
+          ],
+          "evidence_document": "projects/prospect-orchestrator/EVIDENCE.md",
+          "status": "implementation_described_in_supplied_export"
+        },
+        {
+          "id": "isolated-operations-repair",
+          "summary": "Model/tool incident and repair paths behind independent host authority; live inference disabled",
+          "evidence_ids": [
+            "E16"
+          ],
+          "evidence_document": "projects/prospect-orchestrator/EVIDENCE.md",
+          "status": "implementation_described_in_supplied_export"
         }
       ],
       "metrics": [
         {
           "id": "reported-tests",
-          "value": 616,
+          "value": 681,
           "unit": "passing_tests",
-          "observed_on": "2026-11-01",
-          "provenance": "historical_development_ledger",
-          "evidence_ids": [],
-          "qualifications": "Three Search-related exclusions; includes snapshot-dependent checks; not rerun for the export.",
+          "observed_on": "2026-11-14",
+          "provenance": "historical_test_run_reported",
+          "evidence_ids": [
+            "E10",
+            "E11",
+            "E15",
+            "E16"
+          ],
+          "qualifications": "Final exact-source offline acceptance. Two historical-evidence checks skipped; 45 focused replacement checks overlap this suite and must not be added. No application tests rerun in the public checkout.",
           "evidence_document": "projects/prospect-orchestrator/EVIDENCE.md",
           "executed_in_this_repository": false
         },
@@ -351,13 +387,30 @@
           "qualifications": "Test scenario dimensions with mocked providers; not real invitations.",
           "evidence_document": "projects/prospect-orchestrator/EVIDENCE.md",
           "executed_in_this_repository": false
+        },
+        {
+          "id": "historical-evidence-skips",
+          "value": 2,
+          "unit": "skipped_historical_evidence_checks",
+          "observed_on": "2026-11-14",
+          "provenance": "historical_test_run_reported",
+          "evidence_ids": [
+            "E11",
+            "E16"
+          ],
+          "qualifications": "Two original terminal witnesses unavailable; skips are not passes. Separate from Search Export remaining a scaffold.",
+          "evidence_document": "projects/prospect-orchestrator/EVIDENCE.md",
+          "executed_in_this_repository": false
         }
       ],
       "limitations": [
+        "Live operations-model inference remains disabled; live autonomous production repair was not demonstrated.",
+        "Automatic source promotion covers four reviewed failure/recovery functions; wider changes require review.",
+        "Unattended GitHub publication is not configured.",
         "Search Export has no business adapter.",
-        "No universal scheduler prevents overlap of all external Phantoms.",
+        "Shared admission controls QDF launch paths, not independent provider-dashboard schedules or other tools.",
         "Provider acknowledgment is separate from delivery and acceptance.",
-        "Shared SQLite has a single writer and a single-host deployment scope.",
+        "Business services share a single-writer SQLite database on one host; operational agent/actuator journals are separate.",
         "Full live-pipeline acceptance and current authentication are not established."
       ],
       "directory": "projects/prospect-orchestrator",
@@ -369,7 +422,22 @@
         "engineering": "projects/prospect-orchestrator/ENGINEERING.md",
         "operations": "projects/prospect-orchestrator/OPERATIONS.md",
         "evidence": "projects/prospect-orchestrator/EVIDENCE.md"
-      }
+      },
+      "personal_contribution": {
+        "statement": "I designed seven independently invocable application containers for stage-by-stage exercise, alternative Search/List entry points, shared SQLite coordination with five-second eligibility polling, and relational result references. I wrote the architecture and used AI to derive the specification, implementation plan, progress records, and agent instructions. I directed long-running cloud Codex work with verification requirements and escalation to me when uncertain. I added datasets to SQLite and used real stored data to simulate the full workflow without provider calls. I chose API mocks and offline instance testing for the restricted validation phase, established Tailscale connectivity, and directed Codex deployment in natural language. I reviewed bounded automation/recovery requirements and required a dedicated model-driven operations container rather than a restart-only monitor. My evolving objective is an intelligent sysadmin that monitors, repairs, and writes code within architectural scope; my current requirement excludes container restarts, with diagnostic-log storage still undecided. Live operations-model inference remains disabled. I personally configured PhantomBuster settings and developed packaged contract files with AI assistance; Codex implemented the Python adapters.",
+        "verified_scope": "author_reported_design_documentation_and_review; private_records_explicitly_attribute_selected_architectural_decisions_and_operations_agent_objective_to_user",
+        "provenance": "Author's contribution interview and read-only private-document review, 15 November 2026. Architecture/specification/plan and decision history corroborate selected user decisions; they distinguish Codex technical design and execution. No independent authorship audit.",
+        "application_responsibilities": "The user authored the architecture, used AI to derive supporting documents, chose the restricted testing strategy, prepared SQLite datasets for real-data offline simulation, configured PhantomBuster settings, co-developed packaged contracts with AI, established connectivity, and directed deployment. Codex implemented Python adapters and executed delegated technical work. The user reports no separate personal review of deployment acceptance evidence. Other specific hand-written functions, hands-on debugging/additional host changes, and fine-grained document/contract authorship remain unattributed.",
+        "evidence_document": "projects/prospect-orchestrator/EVIDENCE.md",
+        "evolving_maintenance_requirement": {
+          "stated_on": "2026-11-15",
+          "objective": "Intelligent sysadmin: monitor, repair, and write source code within architectural scope.",
+          "restart_requirement": "Exclude container restarts because of Python scheduling interference and diagnostic-log backup requirements.",
+          "log_storage": "Undecided, including whether to use the database.",
+          "status": "Author-stated evolving requirement; not a verified no-restart capability of the 14 November deployment. No runtime change made."
+        }
+      },
+      "documentation_updated_on": "2026-11-15"
     }
   ]
 }
