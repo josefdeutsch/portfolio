@@ -1,48 +1,34 @@
 # QDF — AI Email Processing Framework
 
-**Focus:** Python backend integration, bounded AI execution, authenticated service contracts, and attachment delivery.
+QDF turns requests in a service-owned Gmail mailbox into authorized AI tasks and replies with selected attachments. The problem is coordinating quota, concurrency, files, and provider handoffs while distinguishing accepted work from completed delivery.
 
-QDF connects a service-owned Gmail mailbox to an authorization layer, selected AI processors, and an outbound email service. The engineering problem is coordinating entitlement checks, concurrency, files, and provider handoffs without confusing accepted work with a completed reply.
+## My contribution
 
-## Implemented system
+- **Architecture:** Drawing on my Python development experience, I defined QDF’s requirements and email-to-AI architecture, including API/webhook interfaces, project structure, FastAPI endpoints, and separation of execution orchestration (`exec/`) from workload logic (`task/`).
+- **Fix contract:** I designed independent Fixes that adapt a reference implementation, own their code/dependencies/container, and share request-handling and delivery contracts for text, attachments, or both. I chose simple ownership boundaries: after receiver acceptance, the sender finishes without tracking downstream completion.
+- **AI-assisted development:** I began using cloud Codex in February 2026, prioritizing prompt critique and iterative specification refinement over test-driven development. Drawing on Andrew Ng’s reflection teaching, I experimented with critiques and reviewed prompts/AI output until ambiguous requirements became clear. Natural-language requirements → API mocks was one example. Early execution testing used unit tests and mocked APIs, without live-provider tests.
+- **Deployment and validation:** I personally configured and deployed QDF on EC2 end to end, ran runtime commands including `docker exec`, used a test Fix for container lifecycle validation, and confirmed reply receipt in a separate email session. I developed operational contracts/guides through personal work and AI assistance, with AI writing functions under my direction.
+- **Privacy:** My original requirement was to inspect incoming metadata without retaining it. The implementation retains limited operational state: quota receipts, a mailbox-history checkpoint, and diagnostic identifiers; this differs from the original requirement.
+- **Tracking and roadmap:** Correlation IDs, timestamps, and lifecycle events already track workflows. My next priority is durable preservation of that evidence for operational reliability, toward recovering interrupted AI workloads without user resubmission. Durable execution, retries, replay, and reconciliation remain planned; preserved metadata is a foundation, not complete recovery.
 
-A normal request follows five service processes: **Gmail ingress → admission → routing → selected task → delivery**. The Compose configuration defines seven services because multiple task implementations are available. The base OpenAI task and structured notification-analysis task have substantive validation evidence; the retrieval-oriented task was excluded from operational acceptance.
+## Implemented solution
 
-Admission owns persistent entitlement and quota receipts. Downstream services own bounded local queues and their own temporary file copies. Delivery validates selected artifacts, constructs MIME, and serializes Gmail submissions through one worker. The system uses one service mailbox; it does not implement separate customer Gmail OAuth onboarding.
+A selected request follows **Gmail ingress → admission → routing → task → delivery**. Seven Compose services support multiple task implementations; the retrieval-oriented task was excluded from operational acceptance.
 
-## Engineering highlights
+- **Admission:** SQLite entitlement checks and transactional receipts prevent repeated quota charges for recorded request IDs ([E02](EVIDENCE.md)).
+- **Execution:** bounded process-local queues and same-key exclusion control contention; queue entries remain volatile ([E03](EVIDENCE.md)).
+- **Files and AI:** receiver-owned copies, explicit output selection, typed agent output, and deterministic source checks support attachment processing and MIME delivery ([E04–E07](EVIDENCE.md)).
 
-| Capability | Mechanism and purpose | Evidence |
-| --- | --- | --- |
-| Authorization and quota integrity | HMAC-derived entitlement-token hashes and transactional request receipts prevent repeated quota charges for recorded request IDs. | [E02](EVIDENCE.md) |
-| Concurrency control | Bounded queues and same-key exclusion; a condition-variable repair addresses full-queue contention. | [E03](EVIDENCE.md) |
-| Explicit file ownership | Typed metadata, bounded copies, safe names, selected outputs, MIME construction, and receiver-local cleanup. | [E04–E05](EVIDENCE.md) |
-| Applied AI validation | Typed agent output plus deterministic source checks, conservative normalization, and review flags. | [E06–E07](EVIDENCE.md) |
-| Operational continuity | OAuth refresh support, checkpoint-preserving watch renewal, health/readiness checks, and recovery preparation. | [E08–E10](EVIDENCE.md) |
+Operational contracts distinguish process health, local readiness, handoff ownership, and provider outcome. A successful handoff is not proof of mailbox receipt.
 
-## Technology choices in context
+Python, FastAPI, Pydantic, SQLite, Gmail/Pub/Sub, and OpenAI Responses API/Agents SDK underpin the system. Docker Compose and Nginx support its recorded single-host EC2 deployment. The [decision record](DECISIONS.md) explains the tradeoffs.
 
-Python 3.12, FastAPI, Pydantic, and Uvicorn make service input and response contracts explicit. SQLite provides local transactional entitlement accounting. Queues, threads, and asyncio bound local work without a separate broker. Gmail API, Google Cloud Pub/Sub, OAuth 2.0, and MIME connect mailbox events to reply delivery. The base task uses OpenAI Responses API; the specialized task uses OpenAI Agents SDK. Docker Compose, Nginx, TLS, Linux, and AWS EC2 support the recorded single-host deployment.
+## Strongest supported result
 
-The [decision record](DECISIONS.md) explains the benefits, operational costs, and redesign triggers for these choices. Requests, HTTPX/TestClient, pytest, unittest mocks, and Black also appear in the documented stack; their presence is tooling evidence rather than a separate product capability.
+The supplied export reports **138 passing tests and 3 passing subtests on 14 November 2026**, across three suites with providers mocked and website tests excluded ([E11](EVIDENCE.md)). Application tests were not run in this public checkout. These checks cover backend behavior, not model accuracy or exactly-once delivery; full scope and historical observations are in [EVIDENCE.md](EVIDENCE.md).
 
-## Representative workflow
+## Deeper review
 
-An authorized request arrives twice through mailbox notifications. Admission recognizes the recorded request ID without consuming a second quota unit. The selected task generates a response and explicitly selects the output file. Delivery accepts its own validated copies before sending the reply. This does not make accepted queue entries durable across a crash. See the [worked examples and failure cases](EXAMPLES.md).
+[Architecture](ARCHITECTURE.md) · [Engineering](ENGINEERING.md) · [Decisions](DECISIONS.md) · [Illustrative examples](EXAMPLES.md) · [Operations](OPERATIONS.md) · [Evidence](EVIDENCE.md)
 
-## Verification and operating limits
-
-The supplied export reports **138 passing tests and 3 passing subtests on 14 November 2026**, across core backend/routing, base AI, and notification-analysis suites. Providers were mocked. The canonical integration test runs five local HTTP processes; website tests were excluded. These tests were run for the original export, **not in this public checkout**. Historical records dated 7 November 2026 describe bounded Gmail/OpenAI, public-ingress, and gateway checks.
-
-Local queues are volatile. Quota receipts do not guarantee exactly-once provider execution or email delivery. PDF facts lack the same local text verification as readable text sources. The portfolio establishes no semantic-accuracy benchmark, durable replay service, high availability, or current provider authentication. Full scope and qualifications are in [evidence](EVIDENCE.md) and [operations](OPERATIONS.md).
-
-## Technical review
-
-- [Decisions](DECISIONS.md): why these technologies and boundaries were used.
-- [Examples](EXAMPLES.md): attachment processing, duplicate admission, and queue contention.
-- [Architecture](ARCHITECTURE.md): components, flows, ownership, and tradeoffs.
-- [Engineering](ENGINEERING.md): contracts, concurrency, validation, AI, and maintenance.
-- [Operations](OPERATIONS.md): test scope, deployment records, observability, and recovery.
-- [Evidence](EVIDENCE.md): claim register E01–E11 and verification boundaries.
-
-Private implementation access is available on request. Useful source-review targets are the quota-receipt transaction, full-queue regression, file handoff integration test, and typed notification validator. This is a project case study, not a claim of exclusive authorship or employment history. Documentation baseline: 14 November 2026.
+Private implementation access is available on request for deeper verification. Start with the quota transaction, queue-contention regression, or attachment handoff tests. Documentation baseline: 14 November 2026.

@@ -31,7 +31,7 @@ These results are reported by the supplied exports and their dated records. Appl
 | --- | --- | --- | --- |
 | QDF | 138 tests passed; 3 subtests passed | 14 November 2026 export-time rerun, providers mocked; website excluded. | [QDF evidence, E11](projects/qdf/EVIDENCE.md) |
 | JobResearcher | 379 tests passed; one warning | Recorded suite on 13 November 2026; no new suite run for the export. | [JobResearcher evidence](projects/job-researcher/EVIDENCE.md) |
-| Prospect Orchestrator | 616 tests passed; three Search-related exclusions | Development ledger on 1 November 2026; no new suite run for the export. | [Prospect Orchestrator evidence](projects/prospect-orchestrator/EVIDENCE.md) |
+| Prospect Orchestrator | 681 passed; 2 historical-evidence skips | Final exact-source acceptance on 14 November 2026; live operations-model inference disabled. Documentation updated 15 November. | [Prospect Orchestrator evidence](projects/prospect-orchestrator/EVIDENCE.md) |
 
 Historical deployment records establish dated observations, not current availability. Synthetic scenarios and configured limits are identified as such. Source descriptions, reported test execution, and live-provider observations are separate evidence classes.
 
@@ -48,4 +48,4 @@ The [reviewer guide](REVIEW_GUIDE.md) maps competencies to evidence and proposes
 
 Run `python3 scripts/check_portfolio.py` from this directory. It checks the project index, local links, document structure, evidence references, and required project files using the Python standard library. GitHub Actions runs the same check on pushes and pull requests. These checks validate the documentation package, not the private applications or historical results.
 
-Content baseline: supplied exports reviewed on **14 November 2026**. No application setup or credentials are needed to read or validate this repository.
+Content baseline: supplied exports reviewed on **14 November 2026**, with the Prospect Orchestrator documentation refreshed on **15 November 2026** from its updated export. Deployment evidence remains dated 14 November. No application setup or credentials are needed to read or validate this repository.

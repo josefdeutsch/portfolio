@@ -1,10 +1,10 @@
 # Prospect Orchestrator — Operations
 
-> Source: the supplied private-project case-study export, reviewed on 14 November 2026. Test and deployment statements below describe that export and its dated records; they were not rerun in this public documentation repository.
+> Documentation updated on **15 November 2026** from the supplied public-export documents. Deployment and application-test results below are dated **14 November 2026** or explicitly labelled earlier; no new EC2 inspection, application test run, or provider request occurred during this documentation update.
 
 ## Deployment architecture
 
-Docker Compose defines seven application containers sharing one persistent SQLite volume. Each service has its own image, application package and private configuration. Application ports bind to host loopback, and the service process runs as a non-root user with a read-only container root filesystem.
+Docker Compose defines seven business containers sharing one persistent SQLite volume, plus a separate operations-agent container. An independent host actuator has its own operational state and authority; the agent and actuator journals are separate from the business database. Each service has its own image, application package and private configuration. Application ports bind to host loopback, and the service process runs as a non-root user with a read-only container root filesystem.
 
 Container policy includes dropped Linux capabilities, no privilege escalation, process limits, bounded temporary storage, rotated JSON-file logs and a restart policy. These are configuration controls; they do not establish a completed penetration test or continuous availability.
 
@@ -35,7 +35,9 @@ This public guide describes operating principles. It intentionally excludes host
 
 Offline tests deny unmocked IP-network access and clear inherited live configuration. The test image supports execution without a network. Smoke tests and historical-snapshot tests have additional resource requirements; their existence must not be reported as a fresh pass when those resources are unavailable.
 
-The latest reviewed complete-suite ledger entry records 616 passes and three Search-related exclusions on 1 November 2026. That suite was not rerun to produce this export. Documentation validation is recorded separately in [EVIDENCE.md](EVIDENCE.md).
+The final exact-source run on **14 November 2026** recorded **681 passed and 2 historical-evidence skips**. The **45 focused replacement checks overlap the full suite** and are not added to its count. Recorded offline validation used networking-disabled, read-only containers, read-only evidence mounts, and disposable fixture storage.
+Seven-image internal-network Compose smoke and same-database image rollback also
+passed. Scope and remaining evidence gaps are recorded in [EVIDENCE.md](EVIDENCE.md).
 
 ## Monitoring and observability
 
@@ -45,7 +47,18 @@ Health checks inspect local application/storage availability and report whether 
 
 Operationally useful distinctions include disabled execution, no eligible work, scheduling delay, quota/capacity exhaustion, active execution and external reconciliation required. A healthy HTTP endpoint is not proof that a business pipeline completed. A process exit is not proof that its result is valid.
 
-No external metrics platform, distributed tracing, alerting service, measured service-level objective or native Docker HEALTHCHECK should be inferred from the application health API.
+Business health APIs do not imply an external metrics platform, distributed tracing, alerting service or measured service-level objective. The separate operations container has an explicit Docker health check.
+
+The original deterministic host monitor has been retired after installation of
+a separate agent container and independent actuator. At the documented **14 November 2026** deployment checkpoint, model inference and business execution remained disabled. A fresh awaiting-activation heartbeat is an
+expected operational state, not evidence of live reasoning.
+
+The agent is nonroot, has no network or Docker socket, and owns only its incident
+journal. The root actuator uses typed commands, independent policy and persistent
+maintenance budgets. It preserves unresolved provider holds, distinguishes idle
+work from failure and escalates unsafe or wider repairs. Docker authority remains
+substantial host privilege; the separation is not a general sandbox for arbitrary
+model-generated commands. Model activation is a separately authorized operation.
 
 ## Recovery and maintenance
 
@@ -58,10 +71,29 @@ No external metrics platform, distributed tracing, alerting service, measured se
 
 Retention is dependency-aware: unfinished downstream work can pin earlier results, and minimal permanent invitation protection is distinct from ordinary operational detail. Temporary database locks are deferred within bounded behavior; arbitrary provider calls are not automatically replayed as a lock-recovery strategy.
 
-## Verified operational status and limits
+## Deployment verification — 14 November 2026
 
-Historical records reviewed for this export include an operator-reported EC2 update on 28 October 2026 and a later operations checkpoint recording a 1 November deployment with seven successful local health/status checks and external execution disabled. These records support deployment and maintenance experience, not a current availability claim.
+The following is the source export's dated deployment record, reviewed for this documentation update on **15 November 2026**. It does not report a new EC2 inspection on 15 November.
 
-The later checkpoint also preserves an unresolved company-enrichment hold. Search remains a scaffold. Limited live classification and handoff tests do not establish a full production cohort, current LinkedIn authentication, invitation delivery or unattended reliability.
+| Verification recorded on 14 November | Result and scope |
+| --- | --- |
+| Container health | Seven business health endpoints and the isolated operations-agent container passed local checks. Search health does not establish a business adapter. |
+| Database preservation | All **35 pre-existing database tables** retained their rows through the replacement deployment; database integrity and foreign-key checks passed. |
+| Private configuration and receipts | Configuration and model-response receipts remained unchanged. Business-provider enablement and unresolved external-operation protection were preserved. |
+| Restart persistence | Agent operational state and authenticated heartbeats survived verified restarts. The socket-directory repair preserved the container bind mount across an actuator restart. |
+| Model/provider activity | **Zero operations-model requests** were recorded. Live inference stayed disabled; this continuation did not invoke application providers or demonstrate live autonomous production repair. |
+| Promotion and publication | Automatic source promotion is limited to four reviewed failure/recovery functions. Wider changes require review; unattended GitHub publication is not configured. |
 
-No production connection, provider request, database modification, image build or container restart was performed during this documentation task.
+### Earlier stages and follow-up checks
+
+Earlier records describe an EC2 update on 28 October and a seven-service health/status checkpoint on 1 November 2026. During an earlier stage of the **14 November** rollout, seven versioned business images were built, source hashes and isolated database previews were checked, and disabled services passed local health/status checks. One abandoned local enrichment attempt became failed while retaining its external-operation guard. This earlier recovery transition is distinct from the later replacement-deployment comparison of all 35 pre-existing tables.
+
+An initial full-suite attempt exhausted its temporary fixture space; a clean rerun succeeded with more disposable space and unchanged application source. The final agent replacement was accepted at **681 passed and 2 skipped**. A socket-directory lifetime problem was exposed during actuator restart validation; its corrected follow-up recovered authenticated heartbeats and preserved the journal. Failed attempts are not reported as successful checks.
+
+The deterministic host monitor was superseded by the agent/actuator installation. Earlier monitor observations remain historical evidence; they do not establish live reasoning by the replacement. A separate host-only WAL diagnostic follow-up preserved the verified business containers.
+
+### Remaining operating boundaries
+
+Search Export remains a scaffold. Reviewed production launch allowances and unresolved historical enrichment uncertainty continue to constrain live admission; neither was cleared to obtain a healthy result. Historical classification/handoff checks do not establish current authentication, full live-pipeline acceptance, unattended operation, or invitation delivery.
+
+The agent is awaiting separately authorized model activation. The root actuator's Docker authority remains substantial host privilege; the boundary is not a sandbox for arbitrary model-generated commands. Configuration/source-write permissions remain constrained, build metadata stays in private writable state, and image rollback uses the current business database rather than restoring an older snapshot.

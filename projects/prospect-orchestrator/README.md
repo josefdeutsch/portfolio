@@ -1,50 +1,82 @@
 # Prospect Orchestrator — Persistent Enrichment and AI Classification
 
-**Focus:** relational workflows, asynchronous provider integration, transactional ownership, evidence attribution, and recovery from uncertain external effects.
+> Documentation updated on **15 November 2026** from the supplied public-export documents. Deployment and application-test results below are dated **14 November 2026** or explicitly labelled earlier; no new EC2 inspection, application test run, or provider request occurred during this documentation update.
 
-An enrichment or paid model operation can finish after its initiating process times out. Blindly repeating it risks duplicate charges or outreach. Prospect Orchestrator addresses that problem with persisted work ownership, stable company/person identities, and recovery that inspects an existing operation before permitting another.
+A Python backend for persistent company enrichment, prospect research, AI classification and controlled invitation handoff. The implementation combines independent FastAPI services, a shared SQLite database and bounded external-provider integrations.
 
-The supplied export calls this system “QDF Prospect Orchestrator.” It is separate from the QDF email-processing framework; their queues, storage models, and recovery guarantees differ.
+## Problem addressed
 
-## Implemented system
+An enrichment job or paid model request can complete after the initiating process times out. Repeating it blindly can duplicate provider activity, charges or outreach. Meanwhile, the same person may appear under multiple companies or input batches. Reliable automation therefore requires durable ownership, identity resolution and evidence attribution as well as API integration.
 
-Seven independently packaged FastAPI services share one SQLite database. Six have business adapters; **Search Export remains a scaffold**. The implemented pipeline is **list discovery → company enrichment → employee discovery → profile enrichment → AI classification → invitation handoff**.
+## Solution implemented
 
-A shared runtime polls committed records for eligible work, claims ownership transactionally, bounds execution, and records failures. Services do not directly dispatch downstream work. Provider IDs, uncertainty guards, and correlated model-response receipts support recovery. Invitation handling adds permanent person-level suppression and schedule/quota controls; provider acknowledgment is separate from delivery.
+Services discover eligible downstream work from committed relational records. A shared runtime handles polling, transactional claims, bounded execution and failure recording. External execution identifiers and separate uncertainty guards allow recovery to inspect an existing operation rather than automatically launch a replacement.
 
-## Engineering highlights
+The business pipeline defines seven containers, with a separate operations-agent container and independent host actuator. Six business containers contain implemented adapters; Search Export remains an explicit scaffold. The implemented pipeline starts with List Export and continues through company enrichment, employee discovery, profile enrichment, classification and invitation handoff.
 
-| Capability | Mechanism and purpose | Evidence |
-| --- | --- | --- |
-| Durable workflow ownership | Relational constraints, transactional claims, stable identities, and reference-based evidence reuse. | [E03](EVIDENCE.md) |
-| Recovery without blind relaunch | Persist provider IDs, retain uncertainty guards, and fail abandoned local attempts without erasing protection. | [E04–E05](EVIDENCE.md) |
-| Bounded AI classification | Company-site research, structured Chat Completions output, source attribution, and policy-version checks. | [E06–E07](EVIDENCE.md) |
-| Paid-result recovery | Correlated, synchronized local receipts allow an already-received result to survive a database-commit interruption. | [E08](EVIDENCE.md) |
-| Controlled invitation handoff | Person-level suppression, launch intervals, operating windows, and daily/weekly capacity checks. | [E09](EVIDENCE.md) |
+## Key engineering achievements
 
-## Technology choices in context
+- Created reusable runtime and storage packages while keeping each service independently packaged and deployable.
+- Implemented transactional work ownership, stable company/person identities and reference-based reuse of upstream evidence.
+- Added persisted account admission for QDF-controlled Phantom launches, with fair selection, distinct spacing/cooldowns, reviewed allowances and conservative uncertainty holds.
+- Repaired crash recovery so abandoned local attempts become failed without discarding duplicate-prevention guards.
+- Integrated OpenAI Chat Completions with bounded website research, strict structured-output validation and correlated local response receipts.
+- Implemented persistent invitation suppression, schedule/quota checks and a clear distinction between provider acknowledgment and delivery.
+- Built offline integration and fault-injection tests using mocked HTTP, simulated time and disposable SQLite databases.
+- Packaged services with pinned dependencies, non-root execution, read-only filesystems and reduced container privileges.
+- Maintained operating documentation covering verification, database backup, restoration and uncertain external outcomes.
+- Replaced an initial restart monitor with an isolated model/tool agent and independent host action boundary, durable incident ownership and bounded recovery.
 
-Python 3.12, FastAPI, Pydantic, Uvicorn, asyncio, and HTTPX support typed APIs and bounded asynchronous requests. SQLite uses WAL, STRICT tables, foreign keys, and short claim transactions for the single-host relational workflow. OpenAI Chat Completions provides schema-constrained inference; PhantomBuster performs external enrichment and handoff operations. Docker Compose, Linux, and AWS EC2 support the recorded deployment. pytest, simulated clocks, disposable databases, mocked providers, and Ruff support development.
+## Model-driven operations and repair
 
-The [decision record](DECISIONS.md) explains database polling, a shared runtime, scalar provider inputs, response receipts, and the operational limits of this architecture.
+The implemented operations agent owns a model/tool incident loop, scheduling proposals, durable incident ownership, and bounded technical-repair workflows. Typed requests pass through an independent host actuator that checks authority, fresh evidence, and maintenance budgets. Source candidates are isolated, checked against frozen regressions, exercised in network-isolated canaries, and gated before rollout or rollback against the current database.
 
-## Representative workflow
+**Live operations-model inference remains disabled.** Mocked reasoning/tool tests and disposable Git/SQLite tests verify the implemented paths; live autonomous production repair was not demonstrated. Automatic source promotion is limited to **four reviewed failure/recovery functions**; wider changes require review. Unattended GitHub publication is not configured.
 
-A service claims an eligible record, launches bounded provider work, and persists the returned execution ID. After a crash, recovery observes that same operation. A model response received before a failed commit can be recovered from a validated correlated receipt. If acceptance is uncertain and no identifier or usable receipt exists, the guard remains rather than allowing an automatic paid retry. See the [worked examples](EXAMPLES.md).
+## My contribution
 
-## Verification and operating limits
+- **Architecture:** I designed seven independently invocable application containers, alternative Search/List entry points, five-second eligibility polling, and shared SQLite state with relational references instead of copied upstream datasets. Independent stage scheduling handles workload expansion, limits external-query frequency and overlap, and reuses available results.
+- **AI workflow:** I wrote the architecture and used AI to derive the specification, implementation plan, progress records, and agent instructions. I directed long-running cloud Codex work with offline/live verification requirements and instructions to stop and ask me when uncertain.
+- **Provider integration:** I configured PhantomBuster settings myself and developed packaged `contract.json` files with AI assistance. Codex implemented the Python adapters.
+- **Deployment:** I established Tailscale connectivity to EC2 and directed Codex’s deployment through natural-language instructions.
+- **Offline validation:** Provider/platform restrictions made live testing difficult, so I chose mocked APIs and offline tests on the instance. I added datasets to SQLite and simulated the full workflow with real stored data and no provider calls. Independent container invocation enables stage-by-stage exercise. This verifies local behavior, not live provider compatibility; earlier limited live checks remain separately scoped.
+- **Reviewed requirements:** I approved shared pilot-capacity controls, evidence-bound classification, qualified-only invitation handoffs with permanent duplicate protection, and recovery of available results without automatically repeating uncertain paid requests.
+- **Evolving operations objective:** I required a dedicated model-driven operations container rather than a restart-only monitor: an intelligent sysadmin that monitors, repairs, and writes source code within the architecture. My current requirement excludes container restarts because of Python scheduling interference and diagnostic-log backup needs; database-backed log storage is undecided. This is an evolving requirement, not verified behavior. Live operations-model inference remains disabled.
 
-The development ledger reports **616 passing offline tests on 1 November 2026**, with **three Search-related exclusions**. A synthetic integration scenario exercises **150 companies and 450 person-company associations**, including restarts and simulated quota waits. These are test dimensions, not production customers, real invitations, or throughput measurements.
+[Contribution evidence](EVIDENCE.md) distinguishes author-reported decisions, documented implementation, delegated technical execution, and planned changes.
 
-The export records limited live classification/handoff verification and historical EC2 health/status checks. Tests and providers were **not rerun in this public checkout**. Search business logic, full live-pipeline acceptance, universal Phantom scheduling, and current authentication remain outside the demonstrated scope. SQLite's single writer and shared schema constrain scale. See [evidence](EVIDENCE.md) and [operations](OPERATIONS.md).
+## Technology stack
 
-## Technical review
+| Area | Technologies used |
+| --- | --- |
+| Backend | Python 3.12, FastAPI, Uvicorn, Pydantic, asyncio |
+| Persistence | SQLite, Python sqlite3, WAL journaling, relational constraints |
+| Integrations | HTTPX, OpenAI Chat Completions, PhantomBuster |
+| Deployment | Docker, Docker Compose, Linux, systemd, AWS EC2 |
+| Verification | pytest, mocked HTTP transports, simulated clocks, Ruff |
+| Versioning | Git and a private GitHub repository |
 
-- [Decisions](DECISIONS.md): polling, persistence, external uncertainty, and deployment tradeoffs.
-- [Examples](EXAMPLES.md): provider recovery, paid-result receipts, and person-level suppression.
-- [Architecture](ARCHITECTURE.md): services, state, dependencies, and claims.
-- [Engineering](ENGINEERING.md): runtime, schema, provider transport, AI, and recovery repairs.
-- [Operations](OPERATIONS.md): verification, deployment, monitoring, backups, and recovery.
-- [Evidence](EVIDENCE.md): claim register E01–E14 and result boundaries.
+## Evidence and current scope
 
-Private implementation access is available on request. Useful review targets are claim transactions, orphan recovery, receipt finalization, and fault-injection tests. This is a project case study, not a claim of exclusive authorship or employment history. Documentation baseline: 14 November 2026.
+The final exact-source offline run on **14 November 2026** recorded **681 passed and 2 skipped**, with the skips limited to **two historical-evidence checks** because their terminal witness is no longer retained. Recorded offline validation used read-only, network-disabled containers and disposable state. A synthetic integration scenario exercises **150 companies and 450 person-company associations**, including simulated quota waits and restarts. These are test dimensions, not acquired customers, real invitations or throughput benchmarks.
+
+The 14 November continuation adds scheduling and operational supervision. Full offline checks, seven-image Compose smoke, same-database image rollback and a fresh disabled-service EC2 inspection were performed; deployment evidence is distinguished in [EVIDENCE.md](EVIDENCE.md). Earlier limited live classification and handoff checks do not establish current provider authentication or a complete unattended live pipeline. No application-provider request was made during this continuation.
+
+## Demonstrated competencies
+
+Backend API design; relational data modelling; asynchronous provider integration; applied LLM engineering; transactional recovery; duplicate prevention; deterministic testing; container hardening; and evidence-based deployment verification.
+
+This case study describes project-level implementation and recorded results. Employment history, certifications, exclusive authorship and unmeasured business impact are not inferred from the repository.
+
+## Reading guide
+
+The source export calls this project “QDF Prospect Orchestrator”; it is separate from the QDF email-processing framework. Private implementation access is available on request for deeper technical verification.
+
+- [DECISIONS.md](DECISIONS.md): technology choices and tradeoffs.
+- [EXAMPLES.md](EXAMPLES.md): illustrative worked examples.
+- [ARCHITECTURE.md](ARCHITECTURE.md): components, data flow and tradeoffs.
+- [ENGINEERING.md](ENGINEERING.md): implementation, AI integration and reliability mechanisms.
+- [OPERATIONS.md](OPERATIONS.md): deployment, observability and maintenance.
+- [EVIDENCE.md](EVIDENCE.md): accomplishment register, verification boundaries and limitations.
+
+Source export prepared on **14 November 2026**; public documentation updated on **15 November 2026**. This case study is integrated into the public portfolio. Source-file mappings, private revision identifiers and operational evidence locations are retained separately and are not required to understand these documents.

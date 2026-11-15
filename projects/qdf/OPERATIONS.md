@@ -27,6 +27,12 @@ The canonical integration test starts five real local HTTP processes. Gmail and 
 
 Additional regression coverage checks malformed attachment metadata, distinct storage for duplicate display filenames, bounded copies, rejection before ownership acceptance, saturated same-key queue progress, and checkpoint preservation during watch renewal.
 
+## Lifecycle validation and manual receipt checks
+
+The operational baseline distinguishes process health, dependency/configuration readiness, deployment version, ownership transfer, provider outcome, and mailbox receipt. Readiness does not require a live provider call. At each normal handoff, `202` means the receiver validated and copied the request and reserved local capacity; it does not establish durable execution or completed delivery.
+
+During the 14 November 2026 contribution interview, the author reported personally using a test Fix for Docker lifecycle validation and inspecting a separate email session for the reply. This is an author-reported manual check with no exact run date established here. It is separate from the original mocked suites above and the dated live records below. A separate email session alone does not establish an independent external recipient or provider.
+
 ## Historical deployment evidence
 
 Repository-maintained records dated **7 November 2026** describe:
@@ -64,3 +70,9 @@ OAuth refresh, Gmail watch renewal, checkpoint recovery and provider-file cleanu
 The historical rollout encountered memory/storage constraints and an image-build disk failure. Recovery used retained rollback artifacts, unused build-cache reclamation and temporary swap. These records demonstrate resource diagnosis and recovery, not spare capacity or proven sustained throughput. Persistence of temporary resource accommodations across reboot was not established.
 
 The current deployment should therefore be described as historically exercised, with explicit remaining operating responsibilities—not as independently certified for unattended high availability.
+
+## Contract maintenance and future work
+
+The reviewed private framework separates operational baseline contracts, maintenance guides, capability status, and future recoverability designs. Baseline changes coordinate topology, readiness, correlation, attachment ownership, recovery inputs, and focused tests. Operator recovery and update procedures are current documentation; they do not imply automated infrastructure or recovery.
+
+The author identifies these plans as their continuing implementation roadmap. Their first stated priority is durable preservation/backing storage for existing workflow evidence—correlation IDs, timestamps, and lifecycle history—toward recovery without requiring the user to resend the email. Correlation-based lifecycle tracking already exists in diagnostic logs; its durable workflow backing store remains planned. Preserving that metadata does not by itself supply the inputs or duplicate-effect safeguards needed for replay. A durable request ledger, restart-time incomplete-work tracking, replay eligibility, reconciliation, durable attachment storage, scanning, and recurring automation remain planned. Their design documents specify evidence and privacy prerequisites; they do not prove implementation or completed operational drills. See [evidence](EVIDENCE.md) for capability status and personal-attribution limits.
